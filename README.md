@@ -1,17 +1,21 @@
-# xd-crossword
+# xdplayer
 
-A small crossword player for a web page. One JavaScript file (30 KB, 10 KB gzipped), no dependencies, no build step.
-It plays [.xd](https://github.com/century-arcade/xdformat), the plain-text crossword format.
+A small crossword player for a web page: one JavaScript file (30 KB, 10 KB gzipped), no dependencies, no build step.
+It plays [.xd](https://github.com/century-arcade/xdformat), the plain-text crossword format, and shows how to draw
+nearly everything [.xd v4](https://github.com/century-arcade/xdformat/blob/master/doc/xd-format-v4.md) describes:
+Schrödinger squares, circles, shading and bars, and xdown in clues.
+
+The terminal player of the same name is [devottys/xdplayer](https://github.com/devottys/xdplayer).
 
 ```html
-<script src="xd-crossword.js"></script>
-<xd-crossword src="puzzle.xd"></xd-crossword>
+<script src="xd-player.js"></script>
+<xd-player src="puzzle.xd"></xd-player>
 ```
 
 Or put the puzzle in the page, which needs no server for the puzzle:
 
 ```html
-<xd-crossword><script type="text/xd">
+<xd-player><script type="text/xd">
 Title: My Puzzle
 Author: Me
 
@@ -28,7 +32,7 @@ A5. Married ~ WED
 D1. Dairy animal ~ COW
 D2. Exist ~ ARE
 D3. Mr. Lasso ~ TED
-</script></xd-crossword>
+</script></xd-player>
 ```
 
 [index.html](index.html) is a working page, with the Washington Post's first crossword (1924).

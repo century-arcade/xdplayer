@@ -1,13 +1,13 @@
-/* <xd-crossword>: a small crossword player for a web page. One file, no dependencies.
+/* <xd-player>: a small crossword player for a web page. One file, no dependencies.
  *
- *   <script src="xd-crossword.js"></script>
- *   <xd-crossword src="puzzle.xd"></xd-crossword>
+ *   <script src="xd-player.js"></script>
+ *   <xd-player src="puzzle.xd"></xd-player>
  *
  * or with the puzzle in the page, which needs no server:
  *
- *   <xd-crossword><script type="text/xd">
+ *   <xd-player><script type="text/xd">
  *   Title: ...
- *   </script></xd-crossword>
+ *   </script></xd-player>
  *
  * Three parts: parse() reads .xd, Solver is the puzzle and its keyboard with no DOM (so it can be tested alone),
  * and the element draws a Solver. https://github.com/century-arcade/xdformat has the format.
@@ -474,7 +474,7 @@
         }
       }
 
-      get store() { return this.hasAttribute('nosave') ? null : `xd-crossword:${hash(this.s.puzzle.rows.flat().join(''))}`; }
+      get store() { return this.hasAttribute('nosave') ? null : `xd-player:${hash(this.s.puzzle.rows.flat().join(''))}`; }
       restore() {
         try { const v = this.store && root.localStorage.getItem(this.store); if (v) this.s.state = JSON.parse(v); } catch (e) { /* no storage here */ }
       }
@@ -627,8 +627,8 @@
       }
     }
 
-    if (!root.customElements.get('xd-crossword')) root.customElements.define('xd-crossword', XdCrossword);
+    if (!root.customElements.get('xd-player')) root.customElements.define('xd-player', XdCrossword);
   }
 
-  root.XDCrossword = {parse, xdown, plain, readings, Solver};
+  root.XDPlayer = {parse, xdown, plain, readings, Solver};
 })(typeof window !== 'undefined' ? window : globalThis);

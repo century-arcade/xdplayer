@@ -2,9 +2,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import '../xd-crossword.js';
+import '../xd-player.js';
 
-const {parse, xdown, plain, readings, Solver} = globalThis.XDCrossword;
+const {parse, xdown, plain, readings, Solver} = globalThis.XDPlayer;
 
 // open squares and black ones in a shape the keyboard rules care about:
 //   A B C # D E
