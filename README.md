@@ -5,6 +5,9 @@ It plays [.xd](https://github.com/century-arcade/xdformat), the plain-text cross
 nearly everything [.xd v4](https://github.com/century-arcade/xdformat/blob/master/doc/xd-format-v4.md) describes:
 Schrödinger squares, circles, shading and bars, and xdown in clues.
 
+**[Try it](https://centuryarcade.org/xdplayer/demo/)**: five public-domain puzzles from 1913 to 1930, starting with the
+first crossword.
+
 The terminal player of the same name is [devottys/xdplayer](https://github.com/devottys/xdplayer).
 
 ```html
@@ -36,8 +39,9 @@ D3. Mr. Lasso ~ TED
 ```
 
 [index.html](index.html) is the smallest working page. [demo/](demo/) is a fuller one: five public-domain puzzles
-from 1913 to 1930 with a picker, including Wynne's first crossword as printed. Serve the folder to try it
-(`python -m http.server`, then open /demo/). `python demo/make.py` rebuilds it from `demo/puzzles/`, and
+from 1913 to 1930 with a picker, including Wynne's first crossword as printed. It's live at
+[centuryarcade.org/xdplayer/demo](https://centuryarcade.org/xdplayer/demo/), from `main` through GitHub Pages; locally,
+serve the folder (`python -m http.server`) and open /demo/. `python demo/make.py` rebuilds it from `demo/puzzles/`, and
 `--inline OUT` writes it as one file with the player inside, for a host that takes a single page.
 
 ## Keys
