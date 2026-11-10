@@ -392,3 +392,20 @@ test('the example puzzle: every entry has its clue, and its answers match the gr
   s.finish();
   assert.ok(s.solved);
 });
+
+test("Wynne's 1913 puzzle: clues placed by the squares they start and end on, FUN printed filled in", () => {
+  const s = new Solver(readFileSync(new URL('../demo/puzzles/nyw1913-12-21.xd', import.meta.url), 'utf8'));
+  const by = Object.fromEntries(s.all.map(w => [w.label, w]));
+  assert.equal(by['2-3'].sq.map(k => k.accept[0]).join(''), 'SALES');
+  assert.equal(by['1-32'].sq.map(k => k.accept[0]).join(''), 'RULE');
+  assert.equal(by['10-18'].sq.length, 3);                // DOH as printed; the grid spells it DOH too
+  assert.equal(by.given.sq.map(k => k.val).join(''), 'FUN');
+  assert.equal(s.all.filter(w => w.label === 'given').length, 1);
+  assert.equal(s.at(2, 4).num, '2');
+  assert.equal(s.at(2, 8).num, '3');
+  s.go(by.given.sq[0], 'A'); s.key('x');                 // a given square keeps its letter
+  assert.equal(by.given.sq[0].val, 'F');
+  for (const k of s.squares()) if (!k.given) k.val = k.accept[0];
+  s.finish();
+  assert.ok(s.solved);
+});
