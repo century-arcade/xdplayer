@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>xdplayer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;600;800&family=IBM+Plex+Mono:wght@400&display=swap">
+<style>
+  /* a narrow column: what it is, the picker, then the player as wide as the page allows */
+  :root { --bg: #fbfbf8; --fg: #1b1c1f; --muted: #6a6c72; --line: #dcdcd6; --accent: #1f5fbf; --chip: #eef0ec;
+    --display: "Libre Franklin", system-ui, sans-serif; --body: system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #151618; --fg: #ecece6; --muted: #9a9ca3;
+    --line: #34363b; --accent: #7aa7ee; --chip: #222428; color-scheme: dark; } }
+  :root[data-theme="dark"] { --bg: #151618; --fg: #ecece6; --muted: #9a9ca3; --line: #34363b; --accent: #7aa7ee;
+    --chip: #222428; color-scheme: dark; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.5 var(--body); }
+  main { max-width: 1040px; margin: 0 auto; padding-block: 28px 56px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  h1 { font: 800 30px/1.1 var(--display); letter-spacing: -.01em; margin: 0 0 6px; }
+  .lede { max-width: 62ch; margin: 0 0 18px; color: var(--muted); }
+  .lede a { color: var(--accent); }
+  pre { margin: 0 0 24px; padding: 10px 12px; overflow-x: auto; background: var(--chip); border-radius: 6px;
+    font: 13px/1.5 var(--mono); }
+  .pick { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; margin: 0 0 24px;
+    padding: 0; list-style: none; }
+  .pick a { display: flex; flex-direction: column; gap: 2px; height: 100%; box-sizing: border-box; padding: 10px 12px;
+    border: 1px solid var(--line); border-radius: 6px; color: inherit; text-decoration: none; }
+  .pick a:hover { border-color: var(--muted); }
+  .pick a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .pick a[aria-current="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+  .pick .yr { font: 600 12px/1 var(--mono); color: var(--muted); letter-spacing: .04em; }
+  .pick .pub { font: 600 15px/1.25 var(--display); }
+  .pick .what { font-size: 13px; color: var(--muted); }
+  @media (max-width: 600px) {     /* one swipeable row, so the grid is near the top */
+    .pick { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 72%; overflow-x: auto;
+      scroll-snap-type: x mandatory; padding-bottom: 4px; }
+    .pick li { scroll-snap-align: start; }
+    pre { display: none; }
+  }
+  xd-player { --xd-max-cell: 42px; }
+  footer { margin-top: 36px; font-size: 13px; color: var(--muted); max-width: 70ch; }
+  footer a { color: inherit; }
+</style>
+<script src="../xd-player.js"></script>
+<main>
+<h1>xdplayer</h1>
+<p class="lede">A crossword player for any web page: one script, no dependencies. It plays
+  <a href="https://github.com/century-arcade/xdformat">.xd</a>, the plain-text crossword format. Click a square or a
+  clue and type. Arrows move, Shift-arrows strafe, Tab goes to the next clue, Space turns, Escape enters a rebus.</p>
+<pre>&lt;script src="xd-player.js"&gt;&lt;/script&gt;
+&lt;xd-player src="puzzle.xd"&gt;&lt;/xd-player&gt;</pre>
+<ul class="pick">
+  <li><a href="#wynne-1913"><span class="yr">1913</span><span class="pub">New York World</span><span class="what">The first crossword, by Arthur Wynne. A diamond, numbered as printed (“2-3”), with FUN filled in.</span></a></li>
+  <li><a href="#book-1924"><span class="yr">1924</span><span class="pub">The Cross Word Puzzle Book</span><span class="what">Puzzle 1 of the first crossword book, from Simon &amp; Schuster.</span></a></li>
+  <li><a href="#post-1924"><span class="yr">1924</span><span class="pub">The Washington Post</span><span class="what">The Post’s Cross Word Puzzle Number 1.</span></a></li>
+  <li><a href="#latimes-1924"><span class="yr">1924</span><span class="pub">Los Angeles Times</span><span class="what">A cross of black squares across a 15×15.</span></a></li>
+  <li><a href="#judge-1930"><span class="yr">1930</span><span class="pub">Judge</span><span class="what">A 13×13 from the humor magazine, by Mary Anne Sawyer.</span></a></li>
+</ul>
+<xd-player id="player" theme-follow></xd-player>
+<footer>These puzzles ran between 1913 and 1930 and are in the public domain. Their text is from gxd, the .xd crossword
+  corpus. Your progress on each is kept in this browser.</footer>
+</main>
+<script type="text/xd" id="wynne-1913">
+Title: FUN'S Word-Cross Puzzle.
+Author: Arthur Wynne
+Copyright: New York World
+Date: 1913-12-21
+Notes: Fill in the small squares with words which agree with the following definitions:
+
+
+______R______
+_____FUN_____
+____SALES____
+___RECEIPT___
+__MERE_FARM__
+_DOVE___RAIL_
+MORE_____DRAW
+_HARD___TIED_
+__LION_SAND__
+___EVENING___
+____EVADE____
+_____ARE_____
+______D______
+
+
+2-3. What bargain hunters enjoy. ~ SALES
+4-5. A written acknowledgment. ~ RECEIPT
+6-7. Such and nothing more. ~ MERE
+10-11. A bird. ~ DOVE
+14-15. Opposed to less. ~ MORE
+18-19. What this puzzle is. ~ HARD
+22-23. An animal of prey. ~ LION
+26-27. The close of a day. ~ EVENING
+28-29. To elude. ~ EVADE
+30-31. The plural of is. ~ ARE
+8-9. To cultivate. ~ FARM
+12-13. A bar of wood or iron. ~ RAIL
+16-17. What artists learn to do. ~ DRAW
+20-21. Fastened. ~ TIED
+24-25. Found on the seashore. ~ SAND
+10-18. The fibre of the gomuti palm. ~ DOH
+6-22. What we all should be. ~ MORAL
+4-26. A day dream. ~ REVERIE
+2-11. A talon. ~ SERE
+19-28. A pigeon. ~ DOVE
+F-7. Part of your head. ~ FACE
+23-30. A river in Russia. ~ NEVA
+1-32. To govern. ~ RULE
+33-34. An aromatic plant. ~ NARD
+N-8. A fist. ~ NEIF
+24-31. To agree with. ~ SIDE
+3-12. Part of a ship. ~ SPAR
+20-29. One. ~ TANE
+5-27. Exchanging. ~ TRADING
+9-25. Sunk in mud. ~ MIRED
+13-21. A boy. ~ LAD
+
+
+
+Numbering: a=10 x=34
+______1______
+_____FUN_____
+____2...3____
+___4.....5___
+__6..7_8..9__
+_a..b___c..d_
+e..f_____g..h
+_i..j___k..l_
+__m..n_o..p__
+___q..r..s___
+____t...u____
+_____v.w_____
+______x______
+
+</script>
+<script type="text/xd" id="book-1924">
+Title: A Soft Beginning
+Author: Gregorian
+Editor: Prosper Buranelli, F. Gregory Hartswick, Margaret Petherbridge
+Number: 1
+Date: 1924-04-10
+Notes: The two long central words, if solved at once, will give sufficient clues to permit of rapid solution. But should these prove elusive, surely such definitions as 9 horizontal and 29 vertical offer no difficulties. Three-letter words meaning respectively "aged" and "sorrowful" should hold few terrors for the beginner.
+
+
+YE#RICIN#AM
+OLD#NOT#HIE
+#FAR#N#BAR#
+U#MUSSELS#P
+PA#MAPLE#PO
+PROPRIETORS
+EM#LARCH#YE
+R#SENATES#D
+#WAD#T#RAN#
+GAD#LOG#TOT
+ON#PORES#DO
+
+
+A1. Pronoun ~ YE
+A3. Albumin from castor-oil bean ~ RICIN
+A7. Exist ~ AM
+A9. Aged ~ OLD
+A11. Negative ~ NOT
+A12. Incite, hasten ~ HIE
+A13. Remote ~ FAR
+A15. Obstruction ~ BAR
+A17. Bivalves ~ MUSSELS
+A21. Father ~ PA
+A23. Tree ~ MAPLE
+A24. River in Italy ~ PO
+A25. Owners ~ PROPRIETORS
+A26. Printer's measure ~ EM
+A27. Tree ~ LARCH
+A28. Personal pronoun ~ YE
+A29. Legislative bodies ~ SENATES
+A31. Compact mass ~ WAD
+A32. Moved rapidly ~ RAN
+A34. Walk about ~ GAD
+A35. Toss ~ LOG
+A37. Small child ~ TOT
+A39. Upon ~ ON
+A40. Small openings ~ PORES
+A41. Act ~ DO
+
+D1. Exclamation ~ YO
+D2. Fairy ~ ELF
+D4. Preposition ~ IN
+D5. Plotter ~ CONSPIRATOR
+D6. Pronoun ~ IT
+D7. Express generally ~ AIR
+D8. Pronoun ~ ME
+D10. Obstruct ~ DAM
+D12. Owns ~ HAS
+D14. Disarranged ~ RUMPLED
+D15. Voluble talkativeness ~ BLETHER
+D16. Above ~ UPPER
+D18. The bow of Vishnu ~ SARAN
+D19. Choose ~ ELECT
+D20. Assumed an attitude ~ POSED
+D22. Limb ~ ARM
+D24. Peer ~ PRY
+D29. Sorrowful ~ SAD
+D30. Rested ~ SAT
+D31. Pale ~ WAN
+D33. Incline the head ~ NOD
+D34. Move ~ GO
+D35. Behold ~ LO
+D36. Exist ~ GE
+D38. Preposition ~ TO
+
+</script>
+<script type="text/xd" id="post-1924">
+Title: Cross Word Puzzle - Number 1 (Sun, Oct 12, 1924 Wash Post)
+Copyright: © 1924 Metropolitan Newspaper Service
+Date: 1924-10-12
+
+
+PLUMP#SWIFT
+R#PALATES#A
+OF#PAGED#AS
+VAT#NOW#ACT
+EVENT#SABRE
+#OPE###TOO#
+GRIEF#VERBS
+LED#OBI#TAP
+OD#ERASE#TO
+V#ANCHOVY#T
+ELIDE#REEKS
+
+
+A1. Stout ~ PLUMP
+A5. Rapid ~ SWIFT
+A9. Roofs of mouths ~ PALATES
+A11. Belonging to ~ OF
+A13. Called ~ PAGED
+A14. Adverb (degree) ~ AS
+A15. Vessel ~ VAT
+A17. Presently ~ NOW
+A18. Perform ~ ACT
+A19. Happening ~ EVENT
+A21. Weapon ~ SABRE
+A23. Unclose ~ OPE
+A24. Also ~ TOO
+A25. Sorrow ~ GRIEF
+A27. Parts of speech ~ VERBS
+A29. Conducted ~ LED
+A30. Japanese sash ~ OBI
+A32. Provide outlet for ~ TAP
+A33. Alleged force ~ OD
+A34. Obliterate ~ ERASE
+A36. Preposition ~ TO
+A37. Small herring ~ ANCHOVY
+A39. Cut out ~ ELIDE
+A40. Smells strong ~ REEKS
+
+D1. Demonstrate ~ PROVE
+D2. Above ~ UP
+D3. Plan ~ MAP
+D4. Sow ~ PLANT
+D5. Cooks ~ STEWS
+D6. United ~ WED
+D7. Exists ~ IS
+D8. Sense ~ TASTE
+D10. Past ~ AGO
+D12. Was partial to ~ FAVORED
+D14. Circus performer ~ ACROBAT
+D16. Lukewarm ~ TEPID
+D18. To check in development ~ ABORT
+D20. Born ~ NEE
+D22. Corroded ~ ATE
+D25. Article of clothing ~ GLOVE
+D26. Natural phenomenon ~ FORCE
+D27. Guard ~ VISOR
+D28. Stains ~ SPOTS
+D31. Interjection of disgust ~ BAH
+D34. Conclude ~ END
+D35. End of day ~ EVE
+D37. Three-toed sloth ~ AI
+D38. You ~ YE
+
+</script>
+<script type="text/xd" id="latimes-1924">
+Title: LA Times, Nov 27, 1924  Tetracruciform (see notepad)
+Copyright: © 1924, The Ball Syndicate, Inc
+Date: 1924-11-27
+Notes: A mystical design combined with everyday words shorter than the name it bears.  Note: Clue headings were "Horizontal" and "Vertical" in this "Cross Word Puzzle".
+
+
+#GROGGY#ASSIGN#
+B#AFAR###ALSO#L
+ON#FRET#SLAM#FA
+YAP#BAH#IVY#AIM
+UPAS#TO#DO#ESNE
+NEGUS#USE#OAKEN
+A#EBON#H#ARTS#T
+#####AMORT#####
+A#CAMP#A#EARN#A
+SILLY#ALB#MUIRS
+TRUE#OR#AD#ELIS
+ROE#VIM#RIB#EMU
+AN#LILY#BAIT#EM
+L#BANE###RAID#E
+#RECEDE#HYSSOP#
+
+
+A1. Unsteady ~ GROGGY
+A6. Appoint ~ ASSIGN
+A12. Remotely ~ AFAR
+A13. Besides ~ ALSO
+A15. Upon ~ ON
+A17. Worry ~ FRET
+A19. Bang ~ SLAM
+A20. Fourth tone of a musical scale ~ FA
+A21. A bark or yelp ~ YAP
+A23. Pooh ~ BAH
+A24. Climbing plant ~ IVY
+A25. Purpose ~ AIM
+A26. Poisonous sap of Malaysian trees ~ UPAS
+A28. Toward ~ TO
+A29. Perform ~ DO
+A30. Hireling or serf ~ ESNE
+A31. A drink made of wine, water, and lemon-juice, sweetened ~ NEGUS
+A33. Employ ~ USE
+A35. Made of oak ~ OAKEN
+A36. Black ~ EBON
+A38. Practical application of knowledge (plural) ~ ARTS
+A39. Without life ~ AMORT
+A41. Temporary quarters ~ CAMP
+A44. Gain ~ EARN
+A49. Foolish ~ SILLY
+A51. Priest's vestment ~ ALB
+A53. Heaths (Scot.) ~ MUIRS
+A55. Faithful ~ TRUE
+A56. Either ~ OR
+A57. Advertisement (abbrevation) ~ AD
+A59. Province of Greece ~ ELIS
+A60. A small deer ~ ROE
+A61. Energy ~ VIM
+A62. Bony rod attached to the spine ~ RIB
+A64. A bird ~ EMU
+A65. One or any ~ AN
+A66. Ornamental plant ~ LILY
+A67. Used to allure a fish ~ BAIT
+A69. Unit of printer's measure ~ EM
+A70. Poison ~ BANE
+A71. To invade suddenly ~ RAID
+A73. Desist ~ RECEDE
+A74. Medicinal herb ~ HYSSOP
+
+D2. God of midday sun ~ RA
+D3. Aside from a main track ~ OFF
+D4. Complete dress ~ GARB
+D5. Vast ~ GREAT
+D7. Proviso ~ SALVO
+D8. Put to death ~ SLAY
+D9. Doctrine or system ~ ISM
+D10. Depart ~ GO
+D11. A large serpent of America ~ BOYUNA
+D14. Mourn ~ LAMENT
+D16. Back of the neck ~ NAPE
+D18. Familiar pronoun ~ THOU
+D19. Lateral ~ SIDE
+D20. Elegant ~ FINE
+D22. Male servant ~ PAGE
+D25. Inquiries ~ ASKS
+D27. Total ~ SUB
+D30. Consume ~ EAT
+D32. Therefore ~ SO
+D34. Shallow ~ SHOAL
+D35. Else ~ OR
+D37. Surface of fibers ~ NAP
+D38. Consumed ~ ATE
+D40. Pertaining to stars ~ ASTRAL
+D41. Guide ~ CLUE
+D42. Beverage ~ ALE
+D43. Possessive pronoun ~ MY
+D45. Part of "be" ~ AM
+D46. Grieve ~ RUE
+D47. African river ~ NILE
+D48. Take ~ ASSUME
+D50. Common metal ~ IRON
+D51. Host ~ ARMY
+D52. Sharp point ~ BARB
+D54. Element of poetry ~ RIME
+D56. Anointed ~ OILED
+D58. Record of daily events ~ DIARY
+D61. Slender plant ~ VINE
+D63. Prejudice ~ BIAS
+D66. Resinous substance ~ LAC
+D68. It is ~ TIS
+D70. Happen ~ BE
+D72. Execute ~ DO
+
+</script>
+<script type="text/xd" id="judge-1930">
+Title: Judge's Crossword Puzzle No. 137
+Author: Mary Anne Sawyer
+Date: 1930-01-04
+Number: 137
+Byline: Submitted by Miss Mary Anne Sawyer, New York City.
+
+
+#LEMON#AGENT#
+RAVE#EEN#MART
+ATE#TALON#BAR
+BE#COLONEL#PA
+I#BAN#P#TIM#I
+DARN#REP#TOOT
+#CADDY#ACTOR#
+REEL#EAR#EDEN
+A#SEA#E#CRY#E
+IT#SIESTAS#RE
+DEW#DROOP#FAD
+SLOT#APE#GAGS
+#LOOKS#SKATE#
+
+
+A1. A good mixer. ~ LEMON
+A5. This collects at the front door. ~ AGENT
+A9. You'll get this from a nut. ~ RAVE
+A10. Poetic twilight. ~ EEN
+A12. Housewives' rendezvous. ~ MART
+A14. What the girl who looked good enough to eat did. ~ ATE
+A15. An eagle's paw. ~ TALON
+A17. In the old days men were up against it. ~ BAR
+A18. Exist. ~ BE
+A19. Southern military civilian. ~ COLONEL
+A21. A handy man around the house. ~ PA
+A22. This was recently put on in Boston. ~ BAN
+A23. Irish nickname. ~ TIM
+A25. A deacon's oath. ~ DARN
+A27. What she lost at whoopee. ~ REP
+A29. Sound your horn. ~ TOOT
+A31. A small boy who always wants a ride from the country club to town. ~ CADDY
+A32. This fellow is often up-stage. ~ ACTOR
+A33. A big windup. ~ REEL
+A34. This is easily boxed. ~ EAR
+A36. Scene of an early operation. ~ EDEN
+A38. This is hard to fathom. ~ SEA
+A40. The eyes have it. ~ CRY
+A41. B. U. (Biological Urge). ~ IT
+A43. After lunch business conferences. ~ SIESTAS
+A46. Pertaining to. ~ RE
+A47. This is all wet in an early fall. ~ DEW
+A49. Sag. ~ DROOP
+A50. A national habit. ~ FAD
+A51. Penny catcher. ~ SLOT
+A53. Caged monk. ~ APE
+A54. Jokes or chokes. ~ GAGS
+A55. Lamps. ~ LOOKS
+A56. A winter slipper. ~ SKATE
+
+D1. R. I. P. ~ LATE
+D2. A floating rib. ~ EVE
+D3. Myself and I. ~ ME
+D4. Man's name. ~ NEAL
+D5. Signature for a Scotch check. ~ ANON
+D6. Printer's measure. ~ EM
+D7. Pinch. ~ NAB
+D8. There's a catch to this. ~ TRAP
+D9. A kind of fan. ~ RABID
+D11. Runaway. ~ ELOPE
+D13. Quality. ~ TRAIT
+D15. 1900 lbs. of coal. ~ TON
+D16. A court separation. ~ NET
+D19. These have wax ends and often get lit. ~ CANDLES
+D20. These are very kittenish. ~ LITTERS
+D22. These were Bonnie Doon's. ~ BRAES
+D24. This kind of person has black periods. ~ MOODY
+D26. A high spot. ~ ACE
+D27. This kind of corn is being cut frequently these days. ~ RYE
+D28. This is hard to make on the links. ~ PAR
+D30. This is found in the rough. ~ ORE
+D33. Sudden sallies. ~ RAIDS
+D35. A good tales' man. ~ AESOP
+D37. Wants. ~ NEEDS
+D39. A helping hand. ~ AID
+D40. A kind of hair-net. ~ CAP
+D42. What gossips swear they never do. ~ TELL
+D44. Times. ~ ERAS
+D45. Corn acreage (pl.) ~ TOES
+D46. Dernier cri. ~ RAGE
+D48. Court. ~ WOO
+D50. These get sealed frequently. ~ FAT
+D52. Preposition. ~ TO
+D54. A peachy place (abbr.). ~ GA
+</script>
+<script>
+  const player = document.getElementById('player'), ids = [...document.querySelectorAll('script[type="text/xd"]')].map(s => s.id);
+  function open() {
+    const id = ids.includes(location.hash.slice(1)) ? location.hash.slice(1) : ids[0];
+    player.show(document.getElementById(id).textContent);
+    for (const a of document.querySelectorAll('.pick a')) a.setAttribute('aria-current', String(a.hash === '#' + id));
+    const pick = document.querySelector('.pick'), li = pick.querySelector('[aria-current="true"]').parentElement;
+    pick.scrollLeft = li.offsetLeft - pick.offsetLeft;   // on a phone the row scrolls sideways; never the page
+  }
+  function theme() {             // the page's own light/dark switch, when it has one, reaches into the player
+    const t = document.documentElement.dataset.theme;
+    if (t) player.setAttribute('theme', t); else player.removeAttribute('theme');
+  }
+  new MutationObserver(theme).observe(document.documentElement, {attributes: true, attributeFilter: ['data-theme']});
+  theme();
+  addEventListener('hashchange', open);
+  customElements.whenDefined('xd-player').then(open);
+</script>
+
+</html>

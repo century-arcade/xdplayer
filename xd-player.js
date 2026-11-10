@@ -203,6 +203,8 @@
     }
 
     attachClues() {
+      const clues = this.puzzle.clues;
+      if (clues.length && clues.every(c => !c.dir && /^\w+-\w+$/.test(c.ref))) return this.printedClues();
       const given = {A: [], D: []};
       for (const c of this.puzzle.clues) for (const d of c.dir ? [c.dir] : 'AD') given[d].push(c);
       for (const d of 'AD') {
@@ -218,6 +220,54 @@
         });
       }
       for (const w of [...this.words.A, ...this.words.D]) w.clue = w.clue.join(' / ');
+    }
+
+    // Wynne's 1913 puzzle numbers a clue by the squares its answer starts and ends on ("2-3."), with no across or
+    // down. Each clue goes on the entry whose ends carry its labels, each label naming one square throughout, and
+    // whose letters spell its answer where they can (an answer copied wrong still lands by its labels). An entry no
+    // clue claims was printed filled in, as FUN was. The file's own Numbering block is unreliable, so it isn't read.
+    printedClues() {
+      const all = [...this.words.A, ...this.words.D], spell = w => w.sq.map(k => k.accept[0]).join('');
+      const cl = this.puzzle.clues.map(c => ({c, ends: c.ref.split('-'), a: norm(c.answers[0] || '').replace(/[^\p{L}\p{N}]/gu, '')}));
+      const options = cl.map(x => {
+        const same = all.filter(w => spell(w) === x.a);
+        return [...same, ...all.filter(w => !same.includes(w) && w.sq.length === [...x.a].length)];
+      });
+      const order = cl.map((_, i) => i).sort((i, j) => (!options[i].length - !options[j].length) || options[i].length - options[j].length);
+      const at = new Map(), label = new Map(), used = new Set(), out = [];
+      const place = (i, w) => {
+        const added = [];
+        for (const [lb, sq] of [[cl[i].ends[0], w.sq[0]], [cl[i].ends[1], w.sq[w.sq.length - 1]]]) {
+          if ((at.has(lb) && at.get(lb) !== sq) || (label.has(sq) && label.get(sq) !== lb)) {
+            for (const x of added) { label.delete(at.get(x)); at.delete(x); }
+            return null;
+          }
+          if (!at.has(lb)) { at.set(lb, sq); label.set(sq, lb); added.push(lb); }
+        }
+        return added;
+      };
+      const solve = n => {
+        if (n === order.length) return true;
+        const i = order[n];
+        for (const w of options[i]) {
+          if (used.has(w)) continue;
+          const added = place(i, w);
+          if (!added) continue;
+          used.add(w); out[i] = w;
+          if (solve(n + 1)) return true;
+          used.delete(w); out[i] = null;
+          for (const x of added) { label.delete(at.get(x)); at.delete(x); }
+        }
+        return solve(n + 1);                          // nothing fits this one: leave it out rather than fail them all
+      };
+      solve(0);
+      for (const k of this.cells) k.num = label.get(k) || '';
+      for (const w of all) { w.label = ''; w.clue = ''; }
+      cl.forEach((x, i) => { if (out[i]) { out[i].label = x.c.ref; out[i].clue = x.c.body; } });
+      for (const w of all) if (!w.label) {
+        w.label = 'given'; w.clue = '(printed filled in)';
+        for (const k of w.sq) { k.val = k.accept[0]; k.given = true; }
+      }
     }
 
     get word() { return this.pos[this.dir]; }
@@ -236,7 +286,7 @@
     click(k) { if (k === this.pos) this.turn(); else this.go(k); }
     clickWord(w) { this.go(w.sq.find(k => this.blank(k)) || w.sq[0], w.dir); }
 
-    set(k, v, mark = '') { k.val = v; k.mark = mark; }
+    set(k, v, mark = '') { if (!k.given) { k.val = v; k.mark = mark; } }
 
     // after a letter: on to the next blank in the entry, back to one earlier in it, or, the entry done, to the next
     // entry that needs something. A letter typed over a full entry is a correction, so it only moves one square.
@@ -352,6 +402,8 @@
     font: 15px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; }
   @media (prefers-color-scheme: dark) { :host { --xd-ink: #f1f0ea; --xd-muted: #9b9a93; --xd-cell: #2c2c2a; --xd-block: #0e0e0d;
     --xd-line: #4e4d48; --xd-word: #3a3218; --xd-cursor: #6b5718; --xd-bad: #f2877f; --xd-good: #56d364; --xd-shown: #6aa5ee; --xd-shade: #45443f; } }
+  :host([theme="dark"]) { --xd-ink: #f1f0ea; --xd-muted: #9b9a93; --xd-cell: #2c2c2a; --xd-block: #0e0e0d; --xd-line: #4e4d48;
+    --xd-word: #3a3218; --xd-cursor: #6b5718; --xd-bad: #f2877f; --xd-good: #56d364; --xd-shown: #6aa5ee; --xd-shade: #45443f; }
   :host([theme="light"]) { --xd-ink: #1a1a19; --xd-muted: #76756f; --xd-cell: #fff; --xd-block: #1a1a19; --xd-line: #1a1a19;
     --xd-word: #fdf0c2; --xd-cursor: #f7d56b; --xd-bad: #b3261e; --xd-good: #1a7f37; --xd-shown: #2a78d6; --xd-shade: #d9d8d2; }
   * { box-sizing: border-box; }
@@ -379,6 +431,7 @@
   .k.bad::after { content: ""; position: absolute; inset: 0; opacity: .5;
     background: linear-gradient(to top right, transparent 48%, var(--xd-bad) 49%, var(--xd-bad) 51%, transparent 52%); }
   .k.shown { color: var(--xd-shown); }
+  .k.given { color: var(--xd-muted); }
   .k.long { font-size: calc(var(--cs) * 1.1 / var(--n)); white-space: nowrap; }
   .k.circle::before { content: ""; position: absolute; inset: 1px; border: 1px solid var(--xd-muted); border-radius: 50%; }
   .k.barL { box-shadow: inset 2px 0 var(--xd-line); }
@@ -467,7 +520,7 @@
             if (!r.ok) throw new Error(`${src}: ${r.status}`);
             text = await r.text();
           } else text = (this.querySelector('script[type="text/xd"]') || this).textContent;
-          this.show(text);
+          if (text.trim()) this.show(text);              // nothing yet: a script will call show()
         } catch (e) {
           this.wrap.replaceChildren(el('p', '', `Couldn't load this crossword. ${e.message}`));
           console.error(e);
@@ -594,6 +647,7 @@
           k.el.classList.toggle('cur', k === s.pos);
           k.el.classList.toggle('bad', k.mark === 'bad');
           k.el.classList.toggle('shown', k.mark === 'shown');
+          k.el.classList.toggle('given', !!k.given);
           k.el.classList.toggle('long', n > 1);
           if (n > 1) k.el.style.setProperty('--n', Math.max(n, 2));
         }

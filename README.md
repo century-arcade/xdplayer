@@ -1,6 +1,6 @@
 # xdplayer
 
-A small crossword player for a web page: one JavaScript file (30 KB, 10 KB gzipped), no dependencies, no build step.
+A small crossword player for a web page: one JavaScript file (34 KB, 11 KB gzipped), no dependencies, no build step.
 It plays [.xd](https://github.com/century-arcade/xdformat), the plain-text crossword format, and shows how to draw
 nearly everything [.xd v4](https://github.com/century-arcade/xdformat/blob/master/doc/xd-format-v4.md) describes:
 Schrödinger squares, circles, shading and bars, and xdown in clues.
@@ -35,7 +35,10 @@ D3. Mr. Lasso ~ TED
 </script></xd-player>
 ```
 
-[index.html](index.html) is a working page, with the Washington Post's first crossword (1924).
+[index.html](index.html) is the smallest working page. [demo/](demo/) is a fuller one: five public-domain puzzles
+from 1913 to 1930 with a picker, including Wynne's first crossword as printed. Serve the folder to try it
+(`python -m http.server`, then open /demo/). `python demo/make.py` rebuilds it from `demo/puzzles/`, and
+`--inline OUT` writes it as one file with the player inside, for a host that takes a single page.
 
 ## Keys
 
@@ -61,7 +64,7 @@ tapping the clue turns.
 | `src` | The .xd file. It's fetched, so it needs to be same-origin or allow CORS. |
 | `nosave` | Don't keep progress. Otherwise it's saved in `localStorage`, per puzzle. |
 | `notools` | Hide the Check, Reveal, Clear and Rebus buttons. |
-| `theme="light"` | Stay light whatever the visitor's system says. It follows the system otherwise. |
+| `theme="light"`, `theme="dark"` | Stay light or dark whatever the visitor's system says. It follows the system otherwise. |
 
 The element fires `xd-solved` when the grid is right. From a script, `element.show(xdText)` loads a puzzle.
 
@@ -75,7 +78,9 @@ sit beside the grid.
 
 Section headings or the older blank-line form; rebus squares, including Schrödinger squares (`Rebus: 1=O 1=A`) and the
 older `a/b` and `a|b` forms; circles, shading and bars; spacers; uniclue; xdown in clues and metadata (italics, links,
-images and so on); and old puzzles numbered their own way, when the count of clues matches the grid.
+images and so on); old puzzles numbered their own way, when the count of clues matches the grid; and the oldest
+style, a clue numbered by the squares it starts and ends on (`2-3.`), placed by its answer and those labels, with an
+entry no clue claims shown as printed filled in.
 
 It doesn't draw `background-image` cells. An older `a/b` square accepts either reading in either direction, because the
 file doesn't say which applies where.
