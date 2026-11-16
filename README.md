@@ -1,5 +1,7 @@
 # xdplayer
 
+[![pages](https://img.shields.io/github/actions/workflow/status/century-arcade/xdplayer/pages%2Fpages-build-deployment?branch=main&label=pages)](https://github.com/century-arcade/xdplayer/actions/workflows/pages/pages-build-deployment)
+
 A small crossword player for a web page: one JavaScript file (34 KB, 11 KB gzipped), no dependencies, no build step.
 It plays [.xd](https://github.com/century-arcade/xdformat), the plain-text crossword format, and shows how to draw
 nearly everything [.xd v4](https://github.com/century-arcade/xdformat/blob/master/doc/xd-format-v4.md) describes:
